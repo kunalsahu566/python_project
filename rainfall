@@ -1,0 +1,46 @@
+import pandas as pd
+
+# Specify the path to your CSV file
+csv_file_path = 'C:/Users/lenovo/Downloads/RF_NE_1901-2021.csv'
+
+try:
+    # Read the CSV file into a Pandas DataFrame
+    df = pd.read_csv(csv_file_path)
+
+    # Check if 'YEAR' and the monthly columns exist
+    if 'YEAR' not in df.columns or not all(month in df.columns for month in ['JUN', 'JUL', 'AUG', 'SEP']):
+        print("Error: The CSV file must contain 'YEAR', 'JUN', 'JUL', 'AUG', 'SEP' columns for analysis.")
+    else:
+        # Calculate Total Annual Rainfall
+        df['ANNUAL_RAINFALL'] = df[['JUN', 'JUL', 'AUG', 'SEP']].sum(axis=1)
+
+        # Identify Years with Highest Annual Rainfall
+        n_highest = 5  # You can change this number to see more/fewer years
+        highest_rainfall_years = df.nlargest(n_highest, 'ANNUAL_RAINFALL')
+        print(f"\nTop {n_highest} Years with Highest Annual Rainfall:")
+        print(highest_rainfall_years[['ANNUAL_RAINFALL']])
+
+        # Identify Years with Lowest Annual Rainfall
+        n_lowest = 5  # You can change this number
+        lowest_rainfall_years = df.nsmallest(n_lowest, 'ANNUAL_RAINFALL')
+        print(f"\nTop {n_lowest} Years with Lowest Annual Rainfall:")
+        print(lowest_rainfall_years[['ANNUAL_RAINFALL']])
+
+        # --- Seasonal Rainfall Analysis (if 'JN-SP' column exists) ---
+        if 'JN-SP' in df.columns:
+            # Identify Years with Highest Seasonal Rainfall (JUN-SEP)
+            highest_seasonal_years = df.nlargest(n_highest, 'JN-SP')
+            print(f"\nTop {n_highest} Years with Highest JUN-SEP Rainfall:")
+            print(highest_seasonal_years[['JN-SP']])
+
+            # Identify Years with Lowest Seasonal Rainfall (JUN-SEP)
+            lowest_seasonal_years = df.nsmallest(n_lowest, 'JN-SP')
+            print(f"\nTop {n_lowest} Years with Lowest JUN-SEP Rainfall:")
+            print(lowest_seasonal_years[['JN-SP']])
+        else:
+            print("\nNote: 'JN-SP' column not found. Skipping analysis of extreme seasonal rainfall.")
+
+except FileNotFoundError:
+    print(f"Error: The file '{csv_file_path}' was not found. Please check the file path.")
+except Exception as e:
+    print(f"An error occurred: {e}")
